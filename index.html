@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Industrial Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #1f1f1f;
+      color: #eee;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #2c2c2c;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      color: #00bcd4;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #ccc;
+      padding: 10px 0;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover {
+      color: #fff;
+    }
+
+    .main {
+      margin-left: 240px;
+      padding: 20px;
+    }
+
+    .topbar {
+      background-color: #2c2c2c;
+      padding: 10px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      flex: 1 1 200px;
+      background-color: #333;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .metric h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #00bcd4;
+    }
+
+    .metric p {
+      font-size: 24px;
+      margin: 0;
+    }
+
+    canvas {
+      background-color: #2a2a2a;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        margin-left: 0;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Factory Panel</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Sensors</a>
+    <a href="#">Production</a>
+    <a href="#">Logs</a>
+    <a href="#">Settings</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>Industrial Dashboard</h1>
+      <span>Status: <strong style="color:lime">Online</strong></span>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <h3>Temperature</h3>
+        <p id="temp">-- °C</p>
+      </div>
+      <div class="metric">
+        <h3>Pressure</h3>
+        <p id="pressure">-- Pa</p>
+      </div>
+      <div class="metric">
+        <h3>Humidity</h3>
+        <p id="humidity">-- %</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 40px;">Sensor Data</h2>
+    <canvas id="sensorChart" width="600" height="300"></canvas>
+  </div>
+
+  <script>
+    const tempEl = document.getElementById('temp');
+    const pressureEl = document.getElementById('pressure');
+    const humidityEl = document.getElementById('humidity');
+
+    function getRandomValue(min, max) {
+      return (Math.random() * (max - min) + min).toFixed(1);
+    }
+
+    // Simulate live metric updates
+    setInterval(() => {
+      tempEl.textContent = `${getRandomValue(60, 80)} °C`;
+      pressureEl.textContent = `${getRandomValue(90000, 110000)} Pa`;
+      humidityEl.textContent = `${getRandomValue(30, 70)} %`;
+    }, 2000);
+
+    // Chart.js - Line chart
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+    const sensorChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Sensor Value',
+          data: [],
+          borderColor: '#00bcd4',
+          backgroundColor: 'rgba(0,188,212,0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            display: true
+          },
+          y: {
+            min: 0,
+            max: 100
+          }
+        }
+      }
+    });
+
+    function updateChart() {
+      const time = new Date().toLocaleTimeString();
+      const value = getRandomValue(20, 90);
+      const data = sensorChart.data;
+
+      data.labels.push(time);
+      data.datasets[0].data.push(value);
+
+      if (data.labels.length > 15) {
+        data.labels.shift();
+        data.datasets[0].data.shift();
+      }
+
+      sensorChart.update();
+    }
+
+    setInterval(updateChart, 3000);
+  </script>
+</body>
+</html>
